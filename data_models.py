@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy, Column, Integer, String
 from sqlalchemy import ForeignKey
-
+from app import app
 db = SQLAlchemy()
 
 # Defining class Author that inherits from db.Model
@@ -34,4 +34,6 @@ class Book(db.Model):
     def __str__(self):
         return f"The book {self.book_id} is written by {self.author_id}"
 
-
+# Creating the tables with SQLAlchemy, only needed to run once, then can be commented out
+with app.app_context():
+  db.create_all()
