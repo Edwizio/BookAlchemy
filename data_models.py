@@ -1,16 +1,16 @@
-from flask_sqlalchemy import SQLAlchemy, Column, Integer, String
-from sqlalchemy import ForeignKey
-from app import app
+
+from flask_sqlalchemy import SQLAlchemy
+
 db = SQLAlchemy()
 
 # Defining class Author that inherits from db.Model
 class Author(db.Model):
     __tablename__ = 'authors'
 
-    author_id = Column(Integer, primary_key=True, autoincrement=True)
-    author_name = Column(String)
-    birth_date = Column(String)
-    date_of_death = Column(String)
+    author_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    author_name = db.Column(db.String)
+    birth_date = db.Column(db.String)
+    date_of_death = db.Column(db.String)
 
     def __repr__(self):
         return f"Author(id = {self.author_id}, name = {self.author_name})"
@@ -22,11 +22,11 @@ class Author(db.Model):
 class Book(db.Model):
     __tablename__ = 'books'
 
-    book_id = Column(Integer, primary_key=True, autoincrement=True)
-    isbn = Column(String)
-    book_title = Column(String)
-    publication_year = Column(Integer)
-    author_id = Column(Integer, ForeignKey("authors.id"))
+    book_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    isbn = db.Column(db.String)
+    book_title = db.Column(db.String)
+    publication_year = db.Column(db.Integer)
+    author_id = db.Column(db.Integer, db.ForeignKey("authors.author_id"))
 
     def __repr__(self):
         return f"Book(id = {self.book_id}, title = {self.book_title})"
@@ -34,6 +34,3 @@ class Book(db.Model):
     def __str__(self):
         return f"The book {self.book_id} is written by {self.author_id}"
 
-# Creating the tables with SQLAlchemy, only needed to run once, then can be commented out
-with app.app_context():
-  db.create_all()
