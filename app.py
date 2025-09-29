@@ -38,9 +38,51 @@ def add_authors():
         db.session.add(author)
         db.session.commit()
 
-        return "Author added successfully!", 201
+        return render_template("add_author.html", message="Author added successfully!")
 
     return render_template('add_author.html')
+
+
+def validate_book_data(data):
+    """This helper function checks for the validity of data by making sure
+        it has the required attributes"""
+    if "title" not in data or "isbn" not in data:
+        return False
+    return True
+
+
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_books():
+    """This method adds books to the database by rendering an HTML page connected through Flask app"""
+    if request.method == "POST":
+        new_book = request.get_json()
+
+        if not validate_book_data(new_book):
+            return "Invalid book data", 400
+
+        # Linking the author's name with author_id to enter foreign key in the book table
+        author_name = new_book.get("author_name")
+        author = Author.query.filter_by(author_name=author_name).first()
+
+        if not author:
+            return f"Author '{author_name}' not found. Please add the author first.", 400
+
+        # Creating a book object from the new_book dictionary
+        book = Book(
+            book_title = new_book["title"],
+            isbn = new_book["isbn"],
+            publication_year = new_book.get("publication_year"),  # optional parameter so have to use .get to avoid key error
+            author_id = author.id
+        )
+
+        # Adding and commiting to the database session
+        db.session.add(book)
+        db.session.commit()
+
+        return render_template("add_book.html", message="Book added successfully!")
+
+    return render_template('add_book.html')
+
 
 # Creating the tables with SQLAlchemy, only needed to run once, then can be commented out
 """with app.app_context():

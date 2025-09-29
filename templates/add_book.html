@@ -7,8 +7,18 @@
   </head>
   <body>
 
-  <form action="/add_author" method="POST">
+  <form action="/add_book" method="POST">
   <!-- Add the form here -->
+  <label for="title">Book Title : </label>
+  <input type="text" id="title" name="title" required><br><br>
+
+  <label for="isbn">ISBN : </label>
+  <input type="text" id="isbn" name="isbn" required><br><br>
+  <label for="publication_year">Publication Year : </label>
+  <input type="date" id="publication_year" name="publication_year"><br><br>
+   <label for="author_name">Author's Name : </label>
+  <input type="text" id="author_name" name="author_name"><br><br>
+  <input type="submit" value="Add Author">
   </form>
 
   </body>
