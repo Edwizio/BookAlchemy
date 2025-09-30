@@ -102,9 +102,15 @@ def get_cover_url(isbn, size="M"):
 
 @app.route('/home')
 def display_home_page():
+    sort_by = request.args.get("sort")  # Reading the sort parameter from HTML file
 
-    #Query to get all books from the database
-    books = Book.query.all()
+    #Query to get all books from the database based on sort or not options
+    if sort_by == "title":
+        books = Book.query.order_by(Book.book_title).all()
+    elif sort_by == "author":
+        books = Book.query.join(Author).order_by(Author.author_name).all()
+    else:
+        books = Book.query.all()
 
     # Attach cover URLs
     books_with_covers = []
