@@ -21,15 +21,17 @@ def add_authors():
         date_of_death_str = request.form.get("date_of_death")  # optional
 
         # checking for validation
-        if not author_name or not birth_date:
+        if not author_name or not birth_date_str:
             return render_template("add_author.html", message="Invalid author data. Name and birthdate required.")
 
         # Convert string to date object
         birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date()
 
+        # As date_of_death is optional so need to take care of case when user don't enter it
         if date_of_death_str:
             date_of_death = datetime.strptime(date_of_death_str, "%Y-%m-%d").date()
-
+        else:
+            date_of_death = None
 
         # Creating an author object from the new_author dictionary
         author = Author(
@@ -53,15 +55,20 @@ def add_books():
     if request.method == "POST":
         title = request.form.get("title")
         isbn = request.form.get("isbn")
+
+        # Handling errors, if the optional parameters not provided
         publication_year = request.form.get("publication_year")
+        if not publication_year:
+           publication_year = None
         author_name = request.form.get("author_name")
+        if not author_name:
+            author_name = None
 
         # Checking for validation
         if not title or not isbn:
             return render_template("add_book.html", message="Invalid book data. Title and isbn required.")
 
         # Linking the author's name with author_id to enter foreign key in the book table
-        author_name = request.form.get("author_name")
         author = Author.query.filter_by(author_name=author_name).first()
 
         if not author:
