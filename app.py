@@ -83,13 +83,33 @@ def add_books():
 
     return render_template('add_book.html')
 
+
+def get_cover_url(isbn, size="M"):
+    """
+    This functions returns the cover image URL from Open Library for a given ISBN.
+    size can be: S, M, L (small, medium, large) but we have set the default value to be M.
+    """
+    if not isbn:
+        return None
+    return f"https://covers.openlibrary.org/b/isbn/{isbn}-{size}.jpg"
+
 @app.route('/')
 def display_home_page():
 
     #Query to get all books from the database
     books = Book.query.all()
 
-    # Pass books to the template
+    # Attach cover URLs
+    books_with_covers = []
+    for book in books:
+        books_with_covers.append({
+            "title": book.book_title,
+            "isbn": book.isbn,
+            "cover_url": get_cover_url(book.isbn)
+        })
+        return render_template("home.html", books=books_with_covers)
+
+    # Pass books to the template in case no books have covers
     return render_template('home.html', books=books)
 
 
