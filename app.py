@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from data_models import db, Author, Book
+from datetime import datetime
 
 import os
 app = Flask(__name__)
@@ -10,28 +11,31 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data
 
 db.init_app(app)
 
-def validate_author_data(data):
-    """This helper function checks for the validity of data by making sure
-        it has the required attributes"""
-    if "name" not in data or "birthdate" not in data:
-        return False
-    return True
-
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_authors():
     """This method adds authors to the database by rendering an HTML page connected through Flask app"""
     if request.method == "POST":
-        new_author = request.get_json()
+        author_name = request.form.get("name")
+        birth_date_str = request.form.get("birthdate")
+        date_of_death_str = request.form.get("date_of_death")  # optional
 
-        if not validate_author_data(new_author):
-            return "Invalid author data", 400
+        # checking for validation
+        if not author_name or not birth_date:
+            return render_template("add_author.html", message="Invalid author data. Name and birthdate required.")
+
+        # Convert string to date object
+        birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date()
+
+        if date_of_death_str:
+            date_of_death = datetime.strptime(date_of_death_str, "%Y-%m-%d").date()
+
 
         # Creating an author object from the new_author dictionary
         author = Author(
-            author_name = new_author["name"],
-            birth_date = new_author["birthdate"],
-            date_of_death = new_author.get("date_of_death")  # optional parameter so have to use .get to avoid key error
+            author_name=author_name,
+            birth_date=birth_date,
+            date_of_death= date_of_death
         )
 
         # Adding and commiting to the database session
@@ -43,25 +47,21 @@ def add_authors():
     return render_template('add_author.html')
 
 
-def validate_book_data(data):
-    """This helper function checks for the validity of data by making sure
-        it has the required attributes"""
-    if "title" not in data or "isbn" not in data:
-        return False
-    return True
-
-
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_books():
     """This method adds books to the database by rendering an HTML page connected through Flask app"""
     if request.method == "POST":
-        new_book = request.get_json()
+        title = request.form.get("title")
+        isbn = request.form.get("isbn")
+        publication_year = request.form.get("publication_year")
+        author_name = request.form.get("author_name")
 
-        if not validate_book_data(new_book):
-            return "Invalid book data", 400
+        # Checking for validation
+        if not title or not isbn:
+            return render_template("add_book.html", message="Invalid book data. Title and isbn required.")
 
         # Linking the author's name with author_id to enter foreign key in the book table
-        author_name = new_book.get("author_name")
+        author_name = request.form.get("author_name")
         author = Author.query.filter_by(author_name=author_name).first()
 
         if not author:
@@ -69,9 +69,9 @@ def add_books():
 
         # Creating a book object from the new_book dictionary
         book = Book(
-            book_title = new_book["title"],
-            isbn = new_book["isbn"],
-            publication_year = new_book.get("publication_year"),  # optional parameter so have to use .get to avoid key error
+            book_title = title,
+            isbn = isbn,
+            publication_year = publication_year,
             author_id = author.author_id
         )
 
@@ -93,7 +93,7 @@ def get_cover_url(isbn, size="M"):
         return None
     return f"https://covers.openlibrary.org/b/isbn/{isbn}-{size}.jpg"
 
-@app.route('/')
+@app.route('/home')
 def display_home_page():
 
     #Query to get all books from the database
@@ -107,12 +107,13 @@ def display_home_page():
             "isbn": book.isbn,
             "cover_url": get_cover_url(book.isbn)
         })
-        return render_template("home.html", books=books_with_covers)
 
-    # Pass books to the template in case no books have covers
     return render_template('home.html', books=books)
 
 
 # Creating the tables with SQLAlchemy, only needed to run once, then can be commented out
 """with app.app_context():
   db.create_all()"""
+
+if __name__ == "__main__":
+    app.run(debug=True)
