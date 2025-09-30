@@ -6,11 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
   </head>
   <body>
+ <h1>Books in Library</h1>
 
-    {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
-    </div>
-    {% endfor %}
-
+    {% if books %}
+      {% for book in books %}
+        <div>
+          <h3>{{ book.book_title }}</h3>
+          <p>ISBN: {{ book.isbn }}</p>
+          <p>Year: {{ book.publication_year }}</p>
+          <p>Author: {{ book.author.author_name }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No books found.</p>
+    {% endif %}
   </body>
 </html>

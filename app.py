@@ -72,7 +72,7 @@ def add_books():
             book_title = new_book["title"],
             isbn = new_book["isbn"],
             publication_year = new_book.get("publication_year"),  # optional parameter so have to use .get to avoid key error
-            author_id = author.id
+            author_id = author.author_id
         )
 
         # Adding and commiting to the database session
@@ -82,6 +82,15 @@ def add_books():
         return render_template("add_book.html", message="Book added successfully!")
 
     return render_template('add_book.html')
+
+@app.route('/')
+def display_home_page():
+
+    #Query to get all books from the database
+    books = Book.query.all()
+
+    # Pass books to the template
+    return render_template('home.html', books=books)
 
 
 # Creating the tables with SQLAlchemy, only needed to run once, then can be commented out

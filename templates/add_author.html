@@ -18,5 +18,9 @@
   <input type="submit" value="Add Author"> 
   </form>
 
+   <!-- displaying the success msg -->
+  {% if message %}
+      <p style="color: purple;">{{ message }}</p>
+    {% endif %}
   </body>
 </html>
