@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from data_models import db, Author, Book
 from datetime import datetime
 
@@ -104,7 +105,20 @@ def get_cover_url(isbn, size="M"):
 def display_home_page():
     sort_by = request.args.get("sort")  # Reading the sort parameter from HTML file
 
-    #Query to get all books from the database based on sort or not options
+    query = Book.query.join(Author)
+
+    # Search functionality
+    search_term = request.args.get("q")
+    if search_term:
+        books = query.filter(
+            or_(
+                Book.book_title.ilike(f"%{search_term}%"),
+                Author.author_name.ilike(f"%{search_term}%")
+            )
+        )
+
+    # Query to get all books from the database based on sort or not options
+
     if sort_by == "title":
         books = Book.query.order_by(Book.book_title).all()
     elif sort_by == "author":

@@ -7,10 +7,17 @@
   </head>
   <body>
  <h1>Books in Library</h1>
-         <!-- Sorting buttons -->
+    <!-- Search buttons -->
+    <form method="get" action="/">
+        <input type="text" name="q" placeholder="Search by title or author">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Sorting buttons -->
   <div>
     <a href="/home?sort=title"><button>Sort by Title</button></a>
     <a href="/home?sort=author"><button>Sort by Author</button></a>
+
   </div>
             {% if books %}
           {% for book in books %}
