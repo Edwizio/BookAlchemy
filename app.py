@@ -1,11 +1,11 @@
-from flask import Flask, request, render_template
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, render_template, redirect, url_for, flash
 from sqlalchemy import or_
 from data_models import db, Author, Book
 from datetime import datetime
 
 import os
 app = Flask(__name__)
+app.secret_key = "supersecretkey" # to display flash messages
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data/library.sqlite')}"
@@ -101,8 +101,9 @@ def get_cover_url(isbn, size="M"):
         return None
     return f"https://covers.openlibrary.org/b/isbn/{isbn}-{size}.jpg"
 
+
 @app.route('/home')
-def display_home_page():
+def home():
     sort_by = request.args.get("sort")  # Reading the sort parameter from HTML file
 
     query = Book.query.join(Author)
@@ -119,23 +120,55 @@ def display_home_page():
 
     # Query to get all books from the database based on sort or not options
 
-    if sort_by == "title":
+    elif sort_by == "title":
         books = Book.query.order_by(Book.book_title).all()
     elif sort_by == "author":
         books = Book.query.join(Author).order_by(Author.author_name).all()
     else:
         books = Book.query.all()
 
+
+
     # Attach cover URLs
     books_with_covers = []
     for book in books:
         books_with_covers.append({
+            "id": book.book_id,
             "title": book.book_title,
             "isbn": book.isbn,
-            "cover_url": get_cover_url(book.isbn)
+            "year": book.publication_year,
+            "author_name": book.author.author_name,
+            "cover_url": get_cover_url(book.isbn),
         })
 
-    return render_template('home.html', books=books)
+    return render_template('home.html', books=books_with_covers)
+
+@app.route('/book/<int:book_id>/delete', methods = ['POST', 'DELETE'])
+def delete_book(book_id):
+    """This function deletes a particular book based on it's ID and if the author doesn't
+    have any other book, delete the author too from the author table"""
+
+    book = Book.query.get(book_id)
+
+    if not book:
+        flash("Book does not exist in the database.", "error")
+        return redirect(url_for("home"))
+    else:
+        # Getting the author before deleting the book
+        author = book.author
+
+        # Deleting the book
+        db.session.delete(book)
+        db.session.commit()
+
+        # Checking whether the author still has any books,if not then deleting the author too.
+        if not author.books:
+            db.session.delete(author)
+            db.session.commit()
+            flash(f"Book and its author '{author.author_name}' deleted successfully.", "success")
+        else:
+            flash("Book deleted successfully.", "success")
+        return redirect(url_for("home"))
 
 
 # Creating the tables with SQLAlchemy, only needed to run once, then can be commented out
