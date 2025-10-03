@@ -64,7 +64,8 @@
  <div class="child">
         {% if books %}
   {% for book in books %}
-    <h3>{{ book.title }}</h3>
+    <div class="child">
+     <h3>{{ book.title }}</h3>
     <p>ISBN: {{ book.isbn or 'N/A' }}</p>
     <p>Year: {{ book.year or 'N/A' }}</p>
     <p>Author: {{ book.author_name or 'Unknown' }}</p>
@@ -78,11 +79,11 @@
     {% else %}
       <img src="/images/placeholder.png" alt="No Cover Available">
     {% endif %}
-  {% endfor %}
-{% else %}
-  <p>No books found.</p>
-{% endif %}
- </div>
- </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>No books found.</p>
+    {% endif %}
+  </div>
   </body>
 </html>
