@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+          <!-- Adding flexbox properties for display-->
+    <style>
+        .container{
+            display:flex;
+            aspect-ratio: auto ;
+            background-color: olive;
+            justify-content: center;
+            align-items: flex-start;
+
+        }
+
+
+    </style>
   </head>
   <body>
-
+  <div class="container">
   <form action="/add_book" method="POST">
   <!-- Add the form here -->
   <label for="title">Book Title : </label>
@@ -25,5 +38,6 @@
   {% if message %}
       <p style="color: purple;">{{ message }}</p>
     {% endif %}
+  </div>
   </body>
 </html>
