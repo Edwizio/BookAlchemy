@@ -17,7 +17,7 @@ db.init_app(app)
 
 
 @app.route('/add_author', methods=['GET', 'POST'])
-def add_authors():
+def add_author():
     """This method adds authors to the database by rendering an HTML page connected through Flask app"""
     if request.method == "POST":
         author_name = request.form.get("name")
