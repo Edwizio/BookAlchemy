@@ -28,7 +28,9 @@ class Book(db.Model):
     __tablename__ = 'books'
 
     book_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    isbn = db.Column(db.String)
+    isbn = db.Column(db.String(20), unique=True, nullable=False)
+    # Adding length constraint db.String(20) and unique=True to prevent duplicate ISBNs in our database.
+    # Also, since ISBN is required in our validation, adding nullable=False
     book_title = db.Column(db.String)
     publication_year = db.Column(db.Integer)
 
