@@ -65,7 +65,7 @@ def add_author():
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
-def add_books():
+def add_book():
     """This method adds books to the database by rendering an HTML page connected through Flask app"""
     if request.method == "POST":
         title = request.form.get("title")
