@@ -11,7 +11,7 @@ class Author(db.Model):
     author_name = db.Column(db.String(200), nullable=False)
     # Specifying a length for String columns. Without a length, different databases handle this differently,
     # which can cause issues. Also adding nullable=False since an author must have a name.
-    birth_date = db.Column(db.Date)
+    birth_date = db.Column(db.Date, nullable=False)
     date_of_death = db.Column(db.Date)
 
     # Adding the relationship to Book class
