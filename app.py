@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, flash
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
 
 from data_models import db, Author, Book
 from datetime import datetime
@@ -120,12 +121,12 @@ def get_cover_url(isbn, size="M"):
 def home():
     sort_by = request.args.get("sort")  # Reading the sort parameter from HTML file
 
-    query = Book.query.join(Author)
+    query = Book.query.options(joinedload(Book.author))
 
     # Search functionality
     search_term = request.args.get("q")
     if search_term:
-        books = query.filter(
+        books = query.join(Author).filter(
             or_(
                 Book.book_title.ilike(f"%{search_term}%"),
                 Author.author_name.ilike(f"%{search_term}%")
@@ -134,16 +135,15 @@ def home():
     # Filtering the query but never calling .all() to execute it! This returns a Query object, not a list of books,
     # which will cause errors later when you try to iterate.
 
-    # Query to get all books from the database based on sort or not options
+    # Query to get all books from the database based on sort or not options, now query here is updated to the
+    # Book.query.options(joinedload(Book.author)) to reduce functional and computational complexities
 
     elif sort_by == "title":
-        books = Book.query.order_by(Book.book_title).all()
+        books = query.order_by(Book.book_title).all()
     elif sort_by == "author":
-        books = Book.query.join(Author).order_by(Author.author_name).all()
+        books = query.join(Author).order_by(Author.author_name).all()
     else:
-        books = Book.query.all()
-
-
+        books = query.all()
 
     # Attach cover URLs
     books_with_covers = []
