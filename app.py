@@ -1,5 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, flash
 from sqlalchemy import or_
+from sqlalchemy.exc import SQLAlchemyError
+
 from data_models import db, Author, Book
 from datetime import datetime
 
@@ -49,9 +51,13 @@ def add_author():
             date_of_death= date_of_death
         )
 
-        # Adding and commiting to the database session
+        # Adding and commiting to the database session with error handling if database commit fails
         db.session.add(author)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return render_template("add_author.html", message="Database error")
 
         return render_template("add_author.html", message="Author added successfully!")
 
@@ -91,9 +97,13 @@ def add_books():
             author_id = author.author_id
         )
 
-        # Adding and commiting to the database session
+        # Adding and commiting to the database session with error handling if database commit fails
         db.session.add(book)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return render_template("add_book.html", message="Database error")
 
         return render_template("add_book.html", message="Book added successfully!")
 
@@ -165,14 +175,25 @@ def delete_book(book_id):
         # Getting the author before deleting the book
         author = book.author
 
-        # Deleting the book
+        # Deleting the book and commiting to the database session with error handling if database commit fails
         db.session.delete(book)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            flash("Database error", "error")
+            return redirect(url_for("home"))
 
         # Checking whether the author still has any books,if not then deleting the author too.
         if not author.books:
             db.session.delete(author)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except SQLAlchemyError:
+                db.session.rollback()
+                flash("Database error", "error")
+                return redirect(url_for("home"))
+
             flash(f"Book and its author '{author.author_name}' deleted successfully.", "success")
         else:
             flash("Book deleted successfully.", "success")
