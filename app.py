@@ -60,7 +60,7 @@ def add_author():
             db.session.rollback()
             return render_template("add_author.html", message="Database error")
 
-        return render_template("add_author.html", message="Author added successfully!")
+        return render_template("add_author.html", message=f"Author '{author_name}' added successfully!")
 
     return render_template('add_author.html')
 
@@ -84,7 +84,7 @@ def add_book():
         author = Author.query.filter_by(author_name=author_name).first()
 
         if not author:
-            return f"Author '{author_name} ' not found. Please add the author first.", 400
+            return f"Author '{author_name}' not found in the Database. Please add the author first.", 400
 
         # Creating a book object from the new_book dictionary
         book = Book(
@@ -102,7 +102,7 @@ def add_book():
             db.session.rollback()
             return render_template("add_book.html", message="Database error")
 
-        return render_template("add_book.html", message="Book added successfully!")
+        return render_template("add_book.html", message="Book '{book.book_title}' added successfully!")
 
     return render_template('add_book.html')
 
@@ -167,7 +167,7 @@ def delete_book(book_id):
     book = Book.query.get(book_id)
 
     if not book:
-        flash("Book does not exist in the database.", "error")
+        flash("Book '{book.book_title}' does not exist in the database.", "error")
         return redirect(url_for("home"))
 
     # Getting the author before deleting the book
@@ -192,9 +192,9 @@ def delete_book(book_id):
             flash("Database error", "error")
             return redirect(url_for("home"))
 
-        flash(f"Book and its author '{author.author_name}' deleted successfully.", "success")
+        flash(f"Book '{book.book_title}' and its author '{author.author_name}' deleted successfully.", "success")
     else:
-        flash("Book deleted successfully.", "success")
+        flash("Book '{book.book_title}' deleted successfully.", "success")
 
     return redirect(url_for("home"))
 
