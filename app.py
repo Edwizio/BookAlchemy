@@ -29,7 +29,12 @@ def add_author():
             return render_template("add_author.html", message="Invalid author data. Name and birthdate required.")
 
         # Convert string to date object
-        birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date()
+        # Validate user input on the server side, never trust only client-side validation.
+        try:
+            birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return render_template("add_author.html", message="Invalid date format")
+
 
         # As date_of_death is optional so need to take care of case when user don't enter it
         if date_of_death_str:
