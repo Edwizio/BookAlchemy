@@ -130,7 +130,9 @@ def home():
                 Book.book_title.ilike(f"%{search_term}%"),
                 Author.author_name.ilike(f"%{search_term}%")
             )
-        )
+        ).all()
+    # Filtering the query but never calling .all() to execute it! This returns a Query object, not a list of books,
+    # which will cause errors later when you try to iterate.
 
     # Query to get all books from the database based on sort or not options
 
