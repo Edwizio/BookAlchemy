@@ -35,7 +35,9 @@ class Book(db.Model):
     publication_year = db.Column(db.Integer)
 
     # Foreign Key linking to the Author class
-    author_id = db.Column(db.Integer, db.ForeignKey("authors.author_id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("authors.author_id"), nullable=False)
+    # Adding nullable=False since a book must have an author. This enforces data integrity at the database level,
+    # not just in our application logic.
 
     def __repr__(self):
         return f"Book(id = {self.book_id}, title = {self.book_title})"
