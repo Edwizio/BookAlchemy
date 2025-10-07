@@ -5,7 +5,10 @@ from datetime import datetime
 
 import os
 app = Flask(__name__)
-app.secret_key = "supersecretkey" # to display flash messages
+
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-only')
+# To display flash messages in production, NEVER hardcode secret keys. Use environment variables.
+# For learning, this is acceptable, but important to know for real applications.
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data/library.sqlite')}"
@@ -73,7 +76,7 @@ def add_books():
         author = Author.query.filter_by(author_name=author_name).first()
 
         if not author:
-            return f"Author '{author_name}' not found. Please add the author first.", 400
+            return f"Author '{author_name} ' not found. Please add the author first.", 400
 
         # Creating a book object from the new_book dictionary
         book = Book(
