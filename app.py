@@ -169,12 +169,22 @@ def delete_book(book_id):
     if not book:
         flash("Book does not exist in the database.", "error")
         return redirect(url_for("home"))
-    else:
-        # Getting the author before deleting the book
-        author = book.author
 
-        # Deleting the book and commiting to the database session with error handling if database commit fails
-        db.session.delete(book)
+    # Getting the author before deleting the book
+    author = book.author
+
+    # Deleting the book and commiting to the database session with error handling if database commit fails
+    db.session.delete(book)
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        flash("Database error", "error")
+        return redirect(url_for("home"))
+
+    # Checking whether the author still has any books,if not then deleting the author too.
+    if not author.books:
+        db.session.delete(author)
         try:
             db.session.commit()
         except SQLAlchemyError:
@@ -182,20 +192,11 @@ def delete_book(book_id):
             flash("Database error", "error")
             return redirect(url_for("home"))
 
-        # Checking whether the author still has any books,if not then deleting the author too.
-        if not author.books:
-            db.session.delete(author)
-            try:
-                db.session.commit()
-            except SQLAlchemyError:
-                db.session.rollback()
-                flash("Database error", "error")
-                return redirect(url_for("home"))
+        flash(f"Book and its author '{author.author_name}' deleted successfully.", "success")
+    else:
+        flash("Book deleted successfully.", "success")
 
-            flash(f"Book and its author '{author.author_name}' deleted successfully.", "success")
-        else:
-            flash("Book deleted successfully.", "success")
-        return redirect(url_for("home"))
+    return redirect(url_for("home"))
 
 
 # Creating the tables with SQLAlchemy, only needed to run once, then can be commented out
