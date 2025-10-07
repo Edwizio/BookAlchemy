@@ -72,12 +72,8 @@ def add_books():
         isbn = request.form.get("isbn")
 
         # Handling errors, if the optional parameters not provided
-        publication_year = request.form.get("publication_year")
-        if not publication_year:
-           publication_year = None
-        author_name = request.form.get("author_name")
-        if not author_name:
-            author_name = None
+        publication_year = request.form.get("publication_year")  or None
+        author_name = request.form.get("author_name") or None
 
         # Checking for validation
         if not title or not isbn:
