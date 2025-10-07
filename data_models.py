@@ -8,7 +8,9 @@ class Author(db.Model):
     __tablename__ = 'authors'
 
     author_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    author_name = db.Column(db.String)
+    author_name = db.Column(db.String(200), nullable=False)
+    # Specifying a length for String columns. Without a length, different databases handle this differently,
+    # which can cause issues. Also adding nullable=False since an author must have a name.
     birth_date = db.Column(db.Date)
     date_of_death = db.Column(db.Date)
 
